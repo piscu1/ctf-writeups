@@ -322,6 +322,14 @@ Archive:  wordpress.old.zip
 
 I used zip2john to convert it into the format that John knows, and used him to crack it, and guess what, **we got it**.
 
+I unzipped it and went straight to wp-config.php where we found this:
+
+![xavi](./screenshots/post3.png)
+
+I thought it was just another lateral movement but when I su'd into xavi and saw this:
+
+![root](./screenshots/post4.png)
+
 
 
 
