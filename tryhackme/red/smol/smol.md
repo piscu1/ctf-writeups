@@ -280,5 +280,48 @@ We finally got a reverse shell but there's still probably a long road remaining.
 
 ![hashes](./screenshots/post1.png)
 
+I put all the hashes in a .txt file and tried to crack them using hashcat:
+
+```
+hashcat -m 400 -a 0 hashes.txt /usr/share/wordlists/rockyou.txt
+```
+
+Which **successfuly returned this**:
+
+```
+$P$BWFBcbXdzGrsjnbc54Dr3Erff4JPwv1:redacted
+```
+
+I will firstly try and connect through SSH using that password, but after trying the server accepts only key-based authentication, so I will try to su into diego. **We got it!** I went into his home directory and found the user.txt flag there as well. Now we will start **trying to escalate our privileges to root**.
+
+![flag](./screenshots/post2.png)
+
+While looking through all the home directories we can find in gege's a wordpress.old.zip file on which we have no read permission. Other interesting thing is that in think's home directory we find these which we can use if we want to connect through SSH or find anything interesting using think:
+
+```
+diego@ip-10-10-38-63:/home/think/.ssh$ ls -la
+total 20
+drwxr-xr-x 2 think think    4096 Jun 21  2023 .
+drwxr-x--- 5 think internal 4096 Jan 12  2024 ..
+-rwxr-xr-x 1 think think     572 Jun 21  2023 authorized_keys
+-rwxr-xr-x 1 think think    2602 Jun 21  2023 id_rsa
+-rwxr-xr-x 1 think think     572 Jun 21  2023 id_rsa.pub
+```
+
+I found nothing interesting under diego's permissions so I will switch to think using the id_rsa key we found in his home directory and see if there are any missconfigurations there. I will try and use linpeas and see if anything interesting pops up. After a little bit of research we find out that think and gege belong to the same group so we can just su to gege, because there's that old zip file which I think is the key for us getting to the end of this room.
+
+I switch to the user gege and open up a http server on his home directory so I can get the zip file on my machine, but the surprise comes when I try to unzip it and we see that it's password protected:
+
+```
+┌──(piscu㉿piscu)-[~/random]
+└─$ unzip wordpress.old.zip 
+Archive:  wordpress.old.zip
+   creating: wordpress.old/
+[wordpress.old.zip] wordpress.old/wp-config.php password:
+```
+
+I used zip2john to convert it into the format that John knows, and used him to crack it, and guess what, **we got it**.
+
+
 
 
