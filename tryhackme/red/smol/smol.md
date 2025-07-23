@@ -1,6 +1,5 @@
 
-# Smol
-## By josemlwdf
+# Smol - Medium Boot to Root Challenge
 
 This room is a red challenge in which the description tells us directly that this is a **WordPress** website which has a publicly known vulnerable plugin, highlighting the risks of neglecting software updates and security patches. 
 
@@ -330,6 +329,6 @@ I thought it was just another lateral movement but when I su'd into xavi and saw
 
 ![root](./screenshots/post4.png)
 
-
+**This was the last piece of the puzzle!**I just ran cat on root.txt flag and this was the room. For my first WordPress challenge this one was very fun and I want to give my thanks to the creator of the room: **josemlwdf**.
 
 
