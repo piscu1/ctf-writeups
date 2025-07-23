@@ -1,5 +1,6 @@
 
 # Smol
+## By josemlwdf
 
 This room is a red challenge in which the description tells us directly that this is a **WordPress** website which has a publicly known vulnerable plugin, highlighting the risks of neglecting software updates and security patches. 
 
@@ -126,5 +127,10 @@ Interesting Finding(s):
 
 [!] No WPScan API Token given, as a result vulnerability data has not been output.
 [!] You can get a free API token with 25 daily requests by registering at https://wpscan.com/register
-
 ```
+
+We can see that **wp-content/uploads** its accessible from our so we go on the page and try to see if we can find any backups or sensitive data, but with no success.
+
+![Uploads](./screenshots/recon5.png)
+
+We can see the version of WordPress that it's running on the server is **6.7.1** which is outdated, but considering the hints that we got at the description of the challenge the intended way of approaching this machine is looking at the **publicly known vulnerable plugin** so we'll search for that. We find an article stating that JSmol2WP <= 1.7 which is the version we're running is vulnerable to LFI and XSS so we'll start our exploiting phase based on that.
