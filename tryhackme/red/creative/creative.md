@@ -125,3 +125,30 @@ We add it to our /etc/hosts file and look up the page to see what it has for us.
 ![article](./screenshots/recon6.png)
 
 ![beta](./screenshots/recon5.png)
+
+This is the source code for the beta application and we see all the JS scripts are server-sided.
+
+```
+<!DOCTYPE html>
+<html>
+<head>
+  <title>URL Tester</title>
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Beta URL Tester</h1>
+    <p>This page provides the functionality that allows you to test a URL to see if it is alive. Enter a URL in the form below and click "Submit" to test it.</p>
+    <form action="/" method="POST">
+      <label for="url">Enter URL:</label>
+      <input type="text" id="url" name="url" placeholder="http://example.com">
+      <input type="submit" value="Submit">
+    </form>
+  </div>
+</body>
+</html>
+```
+
+We need to firstly test the functionality and see how it interprets everything we seend by the form. I tried sending http://creative.thm and see what the website tells us. It just shows us the raw HTML page:
+
+![test](./screenshots/recon7.png)
