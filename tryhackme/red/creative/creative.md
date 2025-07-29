@@ -126,6 +126,8 @@ We add it to our /etc/hosts file and look up the page to see what it has for us.
 
 ![beta](./screenshots/recon5.png)
 
+## Exploiting
+
 This is the source code for the beta application and we see all the JS scripts are server-sided.
 
 ```
@@ -194,6 +196,8 @@ redacted        (idrsa)
 Use the "--show" option to display all of the cracked passwords reliably
 Session completed.
 ```
+
+## Privilege Escalation
 
 We use this passphrase and we're successfuly connected to the SSH! We start by getting the user.txt flag.
 
