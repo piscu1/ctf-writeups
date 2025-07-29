@@ -389,7 +389,7 @@ I tried decoding the JWT using jwt.io and this is how our token looks:
 }
 ```
 
-## Privelege Escalation
+## Privilege Escalation
 
 I tried to view the source of the .key file that we found and **we got something!** It's something like a hash value, maybe we could use it to forge a JWT that makes us an admin.
 
